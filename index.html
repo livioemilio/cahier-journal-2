@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cahier Journal - Planificateur CE1</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --primary-dark: #4f46e5;
+      --secondary: #f472b6;
+      --accent: #22d3ee;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg-gradient-start: #faf5ff;
+      --bg-gradient-end: #eff6ff;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-lg: 24px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .animate-fadeIn { animation: fadeInUp 0.5s ease-out; }
+    .animate-slideIn { animation: slideIn 0.3s ease-out; }
+
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .logo-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-subtitle {
+      color: var(--text-secondary);
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      color: white;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .progress-container {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--card-bg);
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .progress-step.active {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      box-shadow: var(--shadow);
+    }
+
+    .progress-step.completed {
+      background: var(--success);
+      color: white;
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .progress-step:not(.active):not(.completed) .step-number {
+      background: var(--border);
+    }
+
+    .main-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      padding: 24px 32px;
+      color: white;
+    }
+
+    .card-header h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .card-header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .card-body {
+      padding: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .form-label-hint {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .time-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .time-slot {
+      display: grid;
+      grid-template-columns: 140px 1fr 1fr 40px;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+
+    .time-slot:hover {
+      background: #f1f5f9;
+    }
+
+    .time-slot input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      width: 70px;
+      text-align: center;
+    }
+
+    .time-slot input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn-remove {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #fee2e2;
+      color: var(--danger);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-remove:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .calendar-container {
+      overflow-x: auto;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: 100px repeat(5, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      min-width: 800px;
+    }
+
+    .calendar-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 16px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .calendar-header.time-col {
+      background: var(--text-primary);
+    }
+
+    .calendar-time {
+      background: #f8fafc;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .calendar-cell {
+      background: white;
+      padding: 8px;
+      min-height: 80px;
+      transition: all 0.2s ease;
+    }
+
+    .calendar-cell:hover {
+      background: #fafafa;
+    }
+
+    .slot-select {
+      width: 100%;
+      padding: 8px;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .slot-select:hover {
+      border-color: var(--primary-light);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .slot-select:focus {
+      outline: none;
+      border-style: solid;
+      border-color: var(--primary);
+    }
+
+    .slot-detail {
+      width: 100%;
+      margin-top: 6px;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      resize: none;
+      min-height: 36px;
+    }
+
+    .slot-detail:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .subject-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 2px;
+    }
+
+    .subject-tag.francais { background: #dbeafe; color: #1e40af; }
+    .subject-tag.maths { background: #fce7f3; color: #9d174d; }
+    .subject-tag.sciences { background: #d1fae5; color: #065f46; }
+    .subject-tag.histoire { background: #fef3c7; color: #92400e; }
+    .subject-tag.arts { background: #ede9fe; color: #5b21b6; }
+    .subject-tag.eps { background: #ffedd5; color: #c2410c; }
+    .subject-tag.anglais { background: #e0e7ff; color: #3730a3; }
+    .subject-tag.emc { background: #fae8ff; color: #86198f; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text-primary);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .week-selector {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f8fafc;
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+    }
+
+    .week-nav-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .week-nav-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .week-display {
+      flex: 1;
+      text-align: center;
+    }
+
+    .week-display-main {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .week-display-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .export-panel {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .export-panel h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .export-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .export-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: white;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    .export-option:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: var(--primary-light);
+    }
+
+    .export-option-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .export-option-icon.gsheets { background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%); }
+    .export-option-icon.pdf { background: linear-gradient(135deg, #ea4335 0%, #c5221f 100%); }
+
+    .export-option-text h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .export-option-text p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .alert {
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .alert-info {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary);
+      color: #1e40af;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      border-left: 4px solid var(--success);
+      color: #065f46;
+    }
+
+    .alert-icon {
+      font-size: 20px;
+    }
+
+    /* Special Events - Redesigned */
+    .events-section {
+      background: #fffbeb;
+      border: 2px solid #fcd34d;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .events-title {
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .events-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .event-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: white;
+      border: 2px solid #fcd34d;
+      border-radius: 25px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #92400e;
+      transition: all 0.2s ease;
+    }
+
+    .event-chip.active {
+      background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .event-chip .toggle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .event-chip:not(.active) .toggle {
+      background: #fef3c7;
+    }
+
+    .add-event-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .add-event-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 2px solid #fcd34d;
+      border-radius: 25px;
+      font-size: 13px;
+      background: white;
+    }
+
+    .add-event-input:focus {
+      outline: none;
+      border-color: var(--warning);
+    }
+
+    .add-event-btn {
+      padding: 10px 20px;
+      background: var(--warning);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .add-event-btn:hover {
+      background: #d97706;
+    }
+
+    @media print {
+      body { background: white; }
+      .no-print { display: none !important; }
+      .calendar-grid { min-width: auto; }
+      .main-card { box-shadow: none; }
+    }
+
+    @media (max-width: 768px) {
+      .app-container { padding: 16px; }
+      .card-body { padding: 20px; }
+      .progress-container { gap: 6px; }
+      .progress-step { padding: 8px 12px; font-size: 12px; }
+      .step-number { width: 20px; height: 20px; font-size: 10px; }
+      .calendar-grid { grid-template-columns: 80px repeat(5, 1fr); }
+      .nav-buttons { flex-direction: column; gap: 12px; }
+      .btn { width: 100%; }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: var(--text-primary);
+      color: white;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-xl);
+      z-index: 1000;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(100px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .toast.success { background: var(--success); }
+
+    .recap-section {
+      background: #f8fafc;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .recap-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hours-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+    }
+
+    .hours-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .hours-item-label { font-weight: 500; }
+    .hours-item-value { font-weight: 700; color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // ==================== DATA ====================
+    // Jours de classe avec indication matin seul pour mercredi
+    const DAYS = [
+      { name: 'Lundi', morningOnly: false },
+      { name: 'Mardi', morningOnly: false },
+      { name: 'Mercredi', morningOnly: true },
+      { name: 'Jeudi', morningOnly: false },
+      { name: 'Vendredi', morningOnly: false }
+    ];
+
+    const DEFAULT_TIME_SLOTS = [
+      { id: 1, start: '08:30', end: '10:00', label: 'Bloc 1', isMorning: true },
+      { id: 2, start: '10:15', end: '11:45', label: 'Bloc 2', isMorning: true },
+      { id: 3, start: '13:45', end: '15:00', label: 'Bloc 3', isMorning: false },
+      { id: 4, start: '15:15', end: '16:30', label: 'Bloc 4', isMorning: false },
+    ];
+
+    // Événements récurrents par défaut
+    const DEFAULT_RECURRING_EVENTS = [
+      { id: 1, label: '🎵 Musique (mercredi matin)', enabled: true },
+      { id: 2, label: '⚽ Sport (jeudi après-midi)', enabled: true },
+    ];
+
+    const SUBJECTS = {
+      francais: {
+        label: 'Français',
+        icon: '📚',
+        color: 'francais',
+        activities: ['Lecture', 'Écriture', 'Grammaire', 'Conjugaison', 'Vocabulaire', 'Dictée', 'Production d\'écrit', 'Orthographe', 'Poésie']
+      },
+      maths: {
+        label: 'Mathématiques',
+        icon: '🔢',
+        color: 'maths',
+        activities: ['Numération', 'Calcul', 'Calcul mental', 'Géométrie', 'Mesures', 'Problèmes']
+      },
+      sciences: {
+        label: 'Questionner le monde',
+        icon: '🔬',
+        color: 'sciences',
+        activities: ['Sciences', 'Vivant', 'Matière', 'Espace', 'Temps']
+      },
+      histoire: {
+        label: 'Histoire-Géo',
+        icon: '🗺️',
+        color: 'histoire',
+        activities: ['Histoire', 'Géographie', 'Frise chronologique']
+      },
+      arts: {
+        label: 'Arts',
+        icon: '🎨',
+        color: 'arts',
+        activities: ['Arts plastiques', 'Musique', 'Histoire des arts']
+      },
+      eps: {
+        label: 'EPS',
+        icon: '⚽',
+        color: 'eps',
+        activities: ['Jeux collectifs', 'Athlétisme', 'Gymnastique', 'Danse', 'Natation']
+      },
+      anglais: {
+        label: 'Anglais',
+        icon: '🇬🇧',
+        color: 'anglais',
+        activities: ['Vocabulaire', 'Chanson', 'Dialogue', 'Culture']
+      },
+      emc: {
+        label: 'EMC',
+        icon: '🤝',
+        color: 'emc',
+        activities: ['Débat', 'Règles de vie', 'Émotions', 'Citoyenneté']
+      }
+    };
+
+    const STEPS = [
+      { id: 1, label: 'Semaine', icon: '📅' },
+      { id: 2, label: 'Horaires', icon: '🕐' },
+      { id: 3, label: 'Planning', icon: '📋' },
+      { id: 4, label: 'Notes', icon: '📝' },
+      { id: 5, label: 'Export', icon: '📤' }
+    ];
+
+    // ==================== UTILITY FUNCTIONS ====================
+    const getWeekDates = (date) => {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diff));
+
+      return DAYS.map((dayInfo, index) => {
+        const dayDate = new Date(monday);
+        dayDate.setDate(monday.getDate() + index);
+        return {
+          name: dayInfo.name,
+          morningOnly: dayInfo.morningOnly,
+          date: dayDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+        };
+      });
+    };
+
+    const formatWeekRange = (date) => {
+      const dates = getWeekDates(date);
+      return `${dates[0].date} - ${dates[dates.length - 1].date}`;
+    };
+
+    const getWeekNumber = (date) => {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+      const week1 = new Date(d.getFullYear(), 0, 4);
+      return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    };
+
+    // ==================== COMPONENTS ====================
+
+    const ProgressSteps = ({ currentStep, onStepClick }) => (
+      <div className="progress-container no-print">
+        {STEPS.map((step) => (
+          <div
+            key={step.id}
+            className={`progress-step ${currentStep === step.id ? 'active' : ''} ${currentStep > step.id ? 'completed' : ''}`}
+            onClick={() => currentStep > step.id && onStepClick(step.id)}
+            style={{ cursor: currentStep > step.id ? 'pointer' : 'default' }}
+          >
+            <span className="step-number">
+              {currentStep > step.id ? '✓' : step.id}
+            </span>
+            <span>{step.label}</span>
+          </div>
+        ))}
+      </div>
+    );
+
+    const WeekSelector = ({ currentDate, onChange, readOnly = false }) => {
+      const navigateWeek = (direction) => {
+        if (readOnly) return;
+        const newDate = new Date(currentDate);
+        newDate.setDate(newDate.getDate() + (direction * 7));
+        onChange(newDate);
+      };
+
+      return (
+        <div className="week-selector">
+          <button className="week-nav-btn" onClick={() => navigateWeek(-1)} disabled={readOnly}>←</button>
+          <div className="week-display">
+            <div className="week-display-main">Semaine {getWeekNumber(currentDate)}</div>
+            <div className="week-display-sub">{formatWeekRange(currentDate)}</div>
+          </div>
+          <button className="week-nav-btn" onClick={() => navigateWeek(1)} disabled={readOnly}>→</button>
+        </div>
+      );
+    };
+
+    // Step 1: Week Selection + Events
+    const StepWeekConfig = ({ config, setConfig, recurringEvents, setRecurringEvents }) => {
+      const [newEventInput, setNewEventInput] = useState('');
+
+      const toggleEvent = (id) => {
+        setRecurringEvents(prev => prev.map(ev =>
+          ev.id === id ? { ...ev, enabled: !ev.enabled } : ev
+        ));
+      };
+
+      const removeEvent = (id) => {
+        setRecurringEvents(prev => prev.filter(ev => ev.id !== id));
+      };
+
+      const addEvent = () => {
+        if (newEventInput.trim()) {
+          const newId = Math.max(...recurringEvents.map(e => e.id), 0) + 1;
+          setRecurringEvents(prev => [...prev, {
+            id: newId,
+            label: newEventInput.trim(),
+            enabled: true
+          }]);
+          setNewEventInput('');
+        }
+      };
+
+      const activeEvents = recurringEvents.filter(e => e.enabled);
+
+      return (
+        <div className="animate-fadeIn">
+          <div className="form-group">
+            <label className="form-label">📅 Quelle semaine prépares-tu ?</label>
+            <WeekSelector
+              currentDate={config.weekDate}
+              onChange={(date) => setConfig(prev => ({ ...prev, weekDate: date }))}
+            />
+          </div>
+
+          <div className="events-section">
+            <div className="events-title">
+              🌟 Événements récurrents de la semaine
+            </div>
+            <p style={{ fontSize: '13px', color: '#92400e', marginBottom: '12px' }}>
+              Clique pour activer/désactiver. Ces événements seront affichés en rappel sur ton planning.
+            </p>
+
+            <div className="events-grid">
+              {recurringEvents.map(event => (
+                <div
+                  key={event.id}
+                  className={`event-chip ${event.enabled ? 'active' : ''}`}
+                  onClick={() => toggleEvent(event.id)}
+                >
+                  <span>{event.label}</span>
+                  <span
+                    className="toggle"
+                    onClick={(e) => { e.stopPropagation(); removeEvent(event.id); }}
+                    title="Supprimer"
+                  >
+                    ×
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="add-event-row">
+              <input
+                type="text"
+                className="add-event-input"
+                placeholder="Ajouter un événement (ex: 📚 Bibliothèque)"
+                value={newEventInput}
+                onChange={(e) => setNewEventInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addEvent()}
+              />
+              <button className="add-event-btn" onClick={addEvent}>
+                + Ajouter
+              </button>
+            </div>
+          </div>
+
+          {activeEvents.length > 0 && (
+            <div className="alert alert-info">
+              <span className="alert-icon">📌</span>
+              <div>
+                <strong>Cette semaine :</strong> {activeEvents.map(e => e.label).join(' • ')}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // Step 2: Time Slots
+    const StepTimeSlots = ({ timeSlots, setTimeSlots }) => {
+      const updateSlot = (id, field, value) => {
+        setTimeSlots(prev => prev.map(slot =>
+          slot.id === id ? { ...slot, [field]: value } : slot
+        ));
+      };
+
+      const removeSlot = (id) => {
+        setTimeSlots(prev => prev.filter(slot => slot.id !== id));
+      };
+
+      const addSlot = () => {
+        const newId = Math.max(...timeSlots.map(s => s.id), 0) + 1;
+        setTimeSlots(prev => [...prev, {
+          id: newId,
+          start: '16:30',
+          end: '17:00',
+          label: `Bloc ${newId}`
+        }]);
+      };
+
+      const resetToDefault = () => {
+        setTimeSlots(DEFAULT_TIME_SLOTS);
+      };
+
+      return (
+        <div className="animate-fadeIn">
+          <div className="alert alert-info">
+            <span className="alert-icon">💡</span>
+            <div>
+              <strong>Horaires pré-remplis CE1</strong>
+              <p style={{ marginTop: '4px', fontSize: '13px' }}>
+                Ces créneaux sont identiques chaque semaine. Ajuste-les une fois et ils seront conservés.
+              </p>
+            </div>
+          </div>
+
+          <div className="time-grid">
+            {timeSlots.map((slot, index) => (
+              <div key={slot.id} className="time-slot animate-slideIn" style={{ animationDelay: `${index * 0.05}s` }}>
+                <input
+                  type="text"
+                  value={slot.label}
+                  onChange={(e) => updateSlot(slot.id, 'label', e.target.value)}
+                  style={{ width: '120px', fontWeight: 600 }}
+                />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="time"
+                    value={slot.start}
+                    onChange={(e) => updateSlot(slot.id, 'start', e.target.value)}
+                  />
+                  <span style={{ color: 'var(--text-muted)' }}>→</span>
+                  <input
+                    type="time"
+                    value={slot.end}
+                    onChange={(e) => updateSlot(slot.id, 'end', e.target.value)}
+                  />
+                </div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+                  {(() => {
+                    const [sh, sm] = slot.start.split(':').map(Number);
+                    const [eh, em] = slot.end.split(':').map(Number);
+                    const mins = (eh * 60 + em) - (sh * 60 + sm);
+                    return `${Math.floor(mins / 60)}h${mins % 60 ? String(mins % 60).padStart(2, '0') : ''}`;
+                  })()}
+                </div>
+                <button
+                  className="btn-remove"
+                  onClick={() => removeSlot(slot.id)}
+                  disabled={timeSlots.length <= 1}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="btn-group" style={{ marginTop: '20px' }}>
+            <button className="btn btn-outline btn-sm" onClick={addSlot}>
+              ➕ Ajouter un créneau
+            </button>
+            <button className="btn btn-secondary btn-sm" onClick={resetToDefault}>
+              🔄 Réinitialiser
+            </button>
+          </div>
+        </div>
+      );
+    };
+
+    // Step 3: Calendar Planning
+    const StepCalendar = ({ config, timeSlots, schedule, setSchedule, recurringEvents }) => {
+      const weekDates = getWeekDates(config.weekDate);
+      const activeEvents = recurringEvents.filter(e => e.enabled);
+
+      const updateCell = (dayIndex, slotId, field, value) => {
+        const key = `${dayIndex}-${slotId}`;
+        setSchedule(prev => ({
+          ...prev,
+          [key]: { ...prev[key], [field]: value }
+        }));
+      };
+
+      const getCell = (dayIndex, slotId) => {
+        return schedule[`${dayIndex}-${slotId}`] || { subject: '', detail: '' };
+      };
+
+      return (
+        <div className="animate-fadeIn">
+          <WeekSelector currentDate={config.weekDate} readOnly />
+
+          {activeEvents.length > 0 && (
+            <div className="alert alert-info" style={{ marginBottom: '20px' }}>
+              <span className="alert-icon">📌</span>
+              <div>
+                <strong>Rappel :</strong> {activeEvents.map(e => e.label).join(' • ')}
+              </div>
+            </div>
+          )}
+
+          <div className="calendar-container">
+            <div className="calendar-grid">
+              <div className="calendar-header time-col">Horaires</div>
+              {weekDates.map((day, index) => (
+                <div key={index} className="calendar-header" style={day.morningOnly ? { background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' } : {}}>
+                  <div>{day.name}{day.morningOnly ? ' (matin)' : ''}</div>
+                  <div style={{ fontSize: '12px', opacity: 0.8 }}>{day.date}</div>
+                </div>
+              ))}
+
+              {timeSlots.map((slot) => (
+                <React.Fragment key={slot.id}>
+                  <div className="calendar-time">
+                    <div>
+                      <div style={{ fontWeight: 700 }}>{slot.label}</div>
+                      <div style={{ fontSize: '11px' }}>{slot.start} - {slot.end}</div>
+                    </div>
+                  </div>
+                  {weekDates.map((day, dayIndex) => {
+                    const cell = getCell(dayIndex, slot.id);
+                    const isDisabled = day.morningOnly && !slot.isMorning;
+
+                    if (isDisabled) {
+                      return (
+                        <div key={dayIndex} className="calendar-cell" style={{ background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>—</span>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={dayIndex} className="calendar-cell">
+                        <select
+                          className="slot-select"
+                          value={cell.subject}
+                          onChange={(e) => updateCell(dayIndex, slot.id, 'subject', e.target.value)}
+                        >
+                          <option value="">— Choisir —</option>
+                          {Object.entries(SUBJECTS).map(([key, subj]) => (
+                            <optgroup key={key} label={`${subj.icon} ${subj.label}`}>
+                              {subj.activities.map(activity => (
+                                <option key={activity} value={`${key}:${activity}`}>
+                                  {activity}
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                        </select>
+                        {cell.subject && (
+                          <textarea
+                            className="slot-detail"
+                            placeholder="Détails, page du manuel..."
+                            value={cell.detail}
+                            onChange={(e) => updateCell(dayIndex, slot.id, 'detail', e.target.value)}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Step 4: Notes
+    const StepNotes = ({ notes, setNotes }) => (
+      <div className="animate-fadeIn">
+        <div className="form-group">
+          <label className="form-label">📝 Notes générales de la semaine</label>
+          <textarea
+            className="form-textarea"
+            placeholder="Objectifs de la semaine, points d'attention, élèves à suivre..."
+            value={notes.general}
+            onChange={(e) => setNotes(prev => ({ ...prev, general: e.target.value }))}
+            style={{ minHeight: '120px' }}
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">🎒 Matériel à préparer</label>
+          <textarea
+            className="form-textarea"
+            placeholder="Liste du matériel nécessaire pour la semaine..."
+            value={notes.materials}
+            onChange={(e) => setNotes(prev => ({ ...prev, materials: e.target.value }))}
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">📋 À ne pas oublier</label>
+          <textarea
+            className="form-textarea"
+            placeholder="Photocopies, rendez-vous parents, réunions..."
+            value={notes.reminders}
+            onChange={(e) => setNotes(prev => ({ ...prev, reminders: e.target.value }))}
+          />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+          {DAYS.map((day, index) => (
+            <div key={index} className="form-group">
+              <label className="form-label">📌 Notes {day}</label>
+              <textarea
+                className="form-textarea"
+                placeholder={`Notes spécifiques pour ${day}...`}
+                value={notes[`day${index}`] || ''}
+                onChange={(e) => setNotes(prev => ({ ...prev, [`day${index}`]: e.target.value }))}
+                style={{ minHeight: '80px' }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    // Step 5: Export
+    const StepExport = ({ config, timeSlots, schedule, notes, recurringEvents, showToast }) => {
+      const weekDates = getWeekDates(config.weekDate);
+      const activeEvents = recurringEvents.filter(e => e.enabled);
+
+      const hoursPerSubject = useMemo(() => {
+        const hours = {};
+        Object.keys(SUBJECTS).forEach(key => { hours[key] = 0; });
+
+        timeSlots.forEach(slot => {
+          const [sh, sm] = slot.start.split(':').map(Number);
+          const [eh, em] = slot.end.split(':').map(Number);
+          const duration = ((eh * 60 + em) - (sh * 60 + sm)) / 60;
+
+          DAYS.forEach((day, dayIndex) => {
+            // Skip afternoon slots for morning-only days
+            if (day.morningOnly && !slot.isMorning) return;
+
+            const cell = schedule[`${dayIndex}-${slot.id}`];
+            if (cell?.subject) {
+              const [subjectKey] = cell.subject.split(':');
+              if (hours[subjectKey] !== undefined) {
+                hours[subjectKey] += duration;
+              }
+            }
+          });
+        });
+
+        return hours;
+      }, [schedule, timeSlots]);
+
+      const exportToGoogleSheets = () => {
+        let tsv = 'Horaires\t' + weekDates.map(d => `${d.name}${d.morningOnly ? ' (matin)' : ''} ${d.date}`).join('\t') + '\n';
+
+        timeSlots.forEach(slot => {
+          const row = [`${slot.start}-${slot.end}`];
+          weekDates.forEach((day, dayIndex) => {
+            if (day.morningOnly && !slot.isMorning) {
+              row.push('—');
+            } else {
+              const cell = schedule[`${dayIndex}-${slot.id}`];
+              if (cell?.subject) {
+                const [, activity] = cell.subject.split(':');
+                row.push(activity + (cell.detail ? ` (${cell.detail})` : ''));
+              } else {
+                row.push('');
+              }
+            }
+          });
+          tsv += row.join('\t') + '\n';
+        });
+
+        navigator.clipboard.writeText(tsv).then(() => {
+          showToast('📋 Copié ! Colle dans Google Sheets (Ctrl+V)');
+        });
+      };
+
+      const exportToPDF = () => {
+        const element = document.getElementById('print-area');
+        const opt = {
+          margin: 10,
+          filename: `cahier-journal-semaine-${getWeekNumber(config.weekDate)}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+        showToast('📄 PDF généré avec succès !');
+      };
+
+      return (
+        <div className="animate-fadeIn">
+          <div className="alert alert-success">
+            <span className="alert-icon">✅</span>
+            <div>
+              <strong>Planning terminé !</strong>
+              <p style={{ marginTop: '4px', fontSize: '13px' }}>
+                Ta semaine {getWeekNumber(config.weekDate)} est prête. Exporte-la maintenant.
+              </p>
+            </div>
+          </div>
+
+          <div className="recap-section">
+            <div className="recap-title">📊 Récapitulatif des heures par matière</div>
+            <div className="hours-grid">
+              {Object.entries(SUBJECTS).map(([key, subj]) => (
+                <div key={key} className="hours-item">
+                  <span className="hours-item-label">{subj.icon} {subj.label}</span>
+                  <span className="hours-item-value">{hoursPerSubject[key].toFixed(1)}h</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div id="print-area" style={{ background: 'white', padding: '20px', borderRadius: 'var(--radius)', marginBottom: '24px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <h2 style={{ fontFamily: 'Nunito', color: 'var(--primary)' }}>
+                📓 Cahier Journal - Semaine {getWeekNumber(config.weekDate)}
+              </h2>
+              <p style={{ color: 'var(--text-secondary)' }}>{formatWeekRange(config.weekDate)} • CE1</p>
+              {activeEvents.length > 0 && (
+                <p style={{ marginTop: '8px', fontSize: '13px', color: 'var(--warning)' }}>
+                  📌 {activeEvents.map(e => e.label).join(' • ')}
+                </p>
+              )}
+            </div>
+
+            <div className="calendar-container">
+              <div className="calendar-grid" style={{ fontSize: '12px' }}>
+                <div className="calendar-header time-col">Horaires</div>
+                {weekDates.map((day, index) => (
+                  <div key={index} className="calendar-header" style={day.morningOnly ? { background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' } : {}}>
+                    <div>{day.name}{day.morningOnly ? ' (matin)' : ''}</div>
+                    <div style={{ fontSize: '10px', opacity: 0.8 }}>{day.date}</div>
+                  </div>
+                ))}
+
+                {timeSlots.map((slot) => (
+                  <React.Fragment key={slot.id}>
+                    <div className="calendar-time">
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '11px' }}>{slot.label}</div>
+                        <div style={{ fontSize: '10px' }}>{slot.start}-{slot.end}</div>
+                      </div>
+                    </div>
+                    {weekDates.map((day, dayIndex) => {
+                      const isDisabled = day.morningOnly && !slot.isMorning;
+                      if (isDisabled) {
+                        return (
+                          <div key={dayIndex} className="calendar-cell" style={{ padding: '6px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>—</span>
+                          </div>
+                        );
+                      }
+                      const cell = schedule[`${dayIndex}-${slot.id}`] || {};
+                      const [subjectKey, activity] = (cell.subject || '').split(':');
+                      const subject = SUBJECTS[subjectKey];
+                      return (
+                        <div key={dayIndex} className="calendar-cell" style={{ padding: '6px' }}>
+                          {cell.subject && (
+                            <div>
+                              <span className={`subject-tag ${subject?.color || ''}`}>
+                                {subject?.icon} {activity}
+                              </span>
+                              {cell.detail && (
+                                <div style={{ fontSize: '10px', marginTop: '4px', color: 'var(--text-secondary)' }}>
+                                  {cell.detail}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+
+            {(notes.general || notes.materials || notes.reminders) && (
+              <div style={{ marginTop: '20px', padding: '16px', background: '#f8fafc', borderRadius: '12px', fontSize: '12px' }}>
+                {notes.general && <p><strong>📝 Notes :</strong> {notes.general}</p>}
+                {notes.materials && <p style={{ marginTop: '8px' }}><strong>🎒 Matériel :</strong> {notes.materials}</p>}
+                {notes.reminders && <p style={{ marginTop: '8px' }}><strong>📋 À ne pas oublier :</strong> {notes.reminders}</p>}
+              </div>
+            )}
+          </div>
+
+          <div className="export-panel">
+            <h3>📤 Options d'export</h3>
+            <div className="export-options">
+              <div className="export-option" onClick={exportToGoogleSheets}>
+                <div className="export-option-icon gsheets">📊</div>
+                <div className="export-option-text">
+                  <h4>Google Sheets</h4>
+                  <p>Copier pour coller dans un tableur</p>
+                </div>
+              </div>
+
+              <div className="export-option" onClick={exportToPDF}>
+                <div className="export-option-icon pdf">📄</div>
+                <div className="export-option-text">
+                  <h4>Télécharger PDF</h4>
+                  <p>Pour imprimer ou archiver</p>
+                </div>
+              </div>
+
+              <div className="export-option" onClick={() => window.print()}>
+                <div className="export-option-icon" style={{ background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)' }}>🖨️</div>
+                <div className="export-option-text">
+                  <h4>Imprimer</h4>
+                  <p>Impression directe</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const Toast = ({ message, visible }) => {
+      if (!visible) return null;
+      return <div className="toast success">{message}</div>;
+    };
+
+    // ==================== MAIN APP ====================
+    const App = () => {
+      const [currentStep, setCurrentStep] = useState(1);
+      const [config, setConfig] = useState({
+        weekDate: new Date()
+      });
+      const [timeSlots, setTimeSlots] = useState(DEFAULT_TIME_SLOTS);
+      const [recurringEvents, setRecurringEvents] = useState(DEFAULT_RECURRING_EVENTS);
+      const [schedule, setSchedule] = useState({});
+      const [notes, setNotes] = useState({
+        general: '',
+        materials: '',
+        reminders: ''
+      });
+      const [toast, setToast] = useState({ message: '', visible: false });
+
+      // Load from localStorage
+      useEffect(() => {
+        const savedTimeSlots = localStorage.getItem('cahierJournal_timeSlots');
+        const savedEvents = localStorage.getItem('cahierJournal_events');
+        if (savedTimeSlots) setTimeSlots(JSON.parse(savedTimeSlots));
+        if (savedEvents) setRecurringEvents(JSON.parse(savedEvents));
+      }, []);
+
+      // Save to localStorage
+      useEffect(() => {
+        localStorage.setItem('cahierJournal_timeSlots', JSON.stringify(timeSlots));
+      }, [timeSlots]);
+
+      useEffect(() => {
+        localStorage.setItem('cahierJournal_events', JSON.stringify(recurringEvents));
+      }, [recurringEvents]);
+
+      const showToast = (message) => {
+        setToast({ message, visible: true });
+        setTimeout(() => setToast({ message: '', visible: false }), 3000);
+      };
+
+      const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, STEPS.length));
+      const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+
+      const renderStep = () => {
+        switch (currentStep) {
+          case 1:
+            return (
+              <StepWeekConfig
+                config={config}
+                setConfig={setConfig}
+                recurringEvents={recurringEvents}
+                setRecurringEvents={setRecurringEvents}
+              />
+            );
+          case 2:
+            return <StepTimeSlots timeSlots={timeSlots} setTimeSlots={setTimeSlots} />;
+          case 3:
+            return (
+              <StepCalendar
+                config={config}
+                timeSlots={timeSlots}
+                schedule={schedule}
+                setSchedule={setSchedule}
+                recurringEvents={recurringEvents}
+              />
+            );
+          case 4:
+            return <StepNotes notes={notes} setNotes={setNotes} />;
+          case 5:
+            return (
+              <StepExport
+                config={config}
+                timeSlots={timeSlots}
+                schedule={schedule}
+                notes={notes}
+                recurringEvents={recurringEvents}
+                showToast={showToast}
+              />
+            );
+          default:
+            return null;
+        }
+      };
+
+      return (
+        <div className="app-container">
+          <header className="header">
+            <div className="logo">
+              <div className="logo-icon">📓</div>
+              <span className="logo-text">Cahier Journal</span>
+            </div>
+            <p className="header-subtitle">Planificateur de semaine</p>
+            <div className="header-badge">🌿 CE1</div>
+          </header>
+
+          <ProgressSteps currentStep={currentStep} onStepClick={setCurrentStep} />
+
+          <main className="main-card">
+            <div className="card-header no-print">
+              <h2>{STEPS[currentStep - 1]?.icon} {STEPS[currentStep - 1]?.label}</h2>
+              <p>Étape {currentStep} sur {STEPS.length}</p>
+            </div>
+
+            <div className="card-body">
+              {renderStep()}
+
+              <div className="nav-buttons no-print">
+                <button
+                  className="btn btn-secondary"
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  style={{ opacity: currentStep === 1 ? 0.5 : 1 }}
+                >
+                  ← Précédent
+                </button>
+
+                {currentStep < STEPS.length ? (
+                  <button className="btn btn-primary" onClick={nextStep}>
+                    Suivant →
+                  </button>
+                ) : (
+                  <button className="btn btn-success" onClick={() => window.print()}>
+                    🖨️ Imprimer le planning
+                  </button>
+                )}
+              </div>
+            </div>
+          </main>
+
+          <Toast message={toast.message} visible={toast.visible} />
+
+          <footer style={{ textAlign: 'center', marginTop: '32px', color: 'var(--text-muted)', fontSize: '13px' }} className="no-print">
+            <p>💜 Fait avec amour pour les enseignants</p>
+          </footer>
+        </div>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
