@@ -1256,10 +1256,10 @@
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
           {DAYS.map((day, index) => (
             <div key={index} className="form-group">
-              <label className="form-label">📌 Notes {day}</label>
+              <label className="form-label">📌 Notes {day.name}</label>
               <textarea
                 className="form-textarea"
-                placeholder={`Notes spécifiques pour ${day}...`}
+                placeholder={`Notes spécifiques pour ${day.name}...`}
                 value={notes[`day${index}`] || ''}
                 onChange={(e) => setNotes(prev => ({ ...prev, [`day${index}`]: e.target.value }))}
                 style={{ minHeight: '80px' }}
